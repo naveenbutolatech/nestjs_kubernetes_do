@@ -28,17 +28,17 @@ else
     echo -e "   ❌ Registry name not found in workflow"
 fi
 
-if grep -q "container-regietery--kubernetes" docker-compose.do.yml; then
-    echo -e "   ✅ Registry name configured in docker-compose"
+if grep -q "container-regietery--kubernetes" .github/workflows/deploy-do-dev.yml; then
+    echo -e "   ✅ Registry name configured in GitHub workflow"
 else
-    echo -e "   ❌ Registry name not found in docker-compose"
+    echo -e "   ❌ Registry name not found in GitHub workflow"
 fi
 
 # Test 2: Check if required files exist
 echo "2. Checking required files..."
 files=(
     ".github/workflows/deploy-do-dev.yml"
-    "docker-compose.do.yml"
+    "docker-compose.dev.yml"
     "Dockerfile"
     "package.json"
 )
@@ -87,18 +87,24 @@ else
     echo -e "   ❌ Workflow missing DO_DROPLET_HOST secret"
 fi
 
-# Test 6: Check docker-compose configuration
-echo "6. Checking docker-compose configuration..."
-if grep -q "healthcheck" docker-compose.do.yml; then
-    echo -e "   ✅ Docker Compose has health checks"
+# Test 6: Check deployment approach
+echo "6. Checking deployment configuration..."
+if grep -q "docker run" .github/workflows/deploy-do-dev.yml; then
+    echo -e "   ✅ GitHub workflow uses direct Docker run approach"
 else
-    echo -e "   ❌ Docker Compose missing health checks"
+    echo -e "   ❌ GitHub workflow missing Docker run commands"
 fi
 
-if grep -q "depends_on" docker-compose.do.yml; then
-    echo -e "   ✅ Docker Compose has service dependencies"
+if grep -q "docker-compose" .github/workflows/deploy-do-dev.yml; then
+    echo -e "   ⚠️  GitHub workflow still uses docker-compose (should be direct Docker run)"
 else
-    echo -e "   ❌ Docker Compose missing service dependencies"
+    echo -e "   ✅ GitHub workflow uses direct Docker commands"
+fi
+
+if grep -q "build: \." docker-compose.dev.yml; then
+    echo -e "   ✅ Docker Compose has build instruction for local development"
+else
+    echo -e "   ❌ Docker Compose missing build instruction"
 fi
 
 echo ""

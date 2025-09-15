@@ -30,13 +30,43 @@ echo "$DO_TOKEN" | docker login $REGISTRY -u your-username --password-stdin
 echo "📦 Pulling latest dev image..."
 docker pull $REGISTRY/$REGISTRY_NAME/$APP_NAME:dev-latest
 
-# Stop existing containers
+# Stop and remove existing containers
 echo "🛑 Stopping existing containers..."
-docker-compose -f docker-compose.do.yml down || true
+docker stop nestjs-app-dev || true
+docker rm nestjs-app-dev || true
 
-# Start new containers
-echo "🚀 Starting new containers..."
-docker-compose -f docker-compose.do.yml up -d
+# Start PostgreSQL and Redis if not running
+echo "🐘 Starting PostgreSQL..."
+docker run -d --name postgres-db-dev \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=nestdb \
+  -p 5432:5432 \
+  --restart unless-stopped \
+  postgres:15-alpine || true
+
+echo "🔴 Starting Redis..."
+docker run -d --name redis-cache-dev \
+  -p 6379:6379 \
+  --restart unless-stopped \
+  redis:7-alpine || true
+
+# Start the NestJS application
+echo "🚀 Starting NestJS application..."
+docker run -d --name nestjs-app-dev \
+  -p 3000:3000 \
+  --link postgres-db-dev:postgres \
+  --link redis-cache-dev:redis \
+  -e NODE_ENV=development \
+  -e DATABASE_HOST=postgres \
+  -e DATABASE_PORT=5432 \
+  -e DATABASE_USER=postgres \
+  -e DATABASE_PASSWORD=postgres \
+  -e DATABASE_NAME=nestdb \
+  -e REDIS_HOST=redis \
+  -e REDIS_PORT=6379 \
+  --restart unless-stopped \
+  $REGISTRY/$REGISTRY_NAME/$APP_NAME:dev-latest
 
 # Wait for health check
 echo "⏳ Waiting for services to be healthy..."
