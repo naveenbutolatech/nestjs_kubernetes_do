@@ -61,8 +61,16 @@ jobs:
           # Navigate to application directory
           cd /home/${{ secrets.DO_DROPLET_USERNAME }}/nestjs-dev
           
-          # Pull latest code
-          git pull origin dev
+          # Initialize git repository if it doesn't exist
+          if [ ! -d ".git" ]; then
+            git init
+            git remote add origin https://github.com/${{ github.repository }}.git
+            git fetch origin
+            git checkout -b dev origin/dev
+          else
+            # Pull latest code
+            git pull origin dev
+          fi
           
           # Login to DigitalOcean Container Registry
           echo "${{ secrets.DO_REGISTRY_TOKEN }}" | docker login ${{ env.DO_REGISTRY }} -u ${{ secrets.DO_REGISTRY_USERNAME }} --password-stdin
@@ -72,7 +80,6 @@ jobs:
           
           # Create docker-compose file for DO Registry image
           cat > docker-compose.do.yml << 'EOF'
-          version: "3.9"
           services:
             app:
               image: ${{ env.DO_REGISTRY }}/${{ env.DO_REGISTRY_NAME }}/${{ env.DO_APP_NAME }}:dev-latest

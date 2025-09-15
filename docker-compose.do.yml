@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   app:
     image: registry.digitalocean.com/container-regietery--kubernetes/nestjs-app-dev:dev-latest
