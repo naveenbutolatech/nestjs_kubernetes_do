@@ -80,6 +80,16 @@ jobs:
       run: |
         kubectl create namespace ${{ env.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
         
+    - name: Create registry secret
+      run: |
+        # Create Docker registry secret for pulling images
+        kubectl create secret docker-registry registry-secret \
+          --docker-server=${{ env.DO_REGISTRY }} \
+          --docker-username=${{ secrets.DO_REGISTRY_USERNAME }} \
+          --docker-password=${{ secrets.DO_REGISTRY_TOKEN }} \
+          --namespace=${{ env.K8S_NAMESPACE }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
     - name: Deploy to Kubernetes
       run: |
         # Update image tag in deployment
