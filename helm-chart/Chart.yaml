@@ -1,0 +1,16 @@
+apiVersion: v2
+name: nestjs-app
+description: A Helm chart for NestJS application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - nestjs
+  - nodejs
+  - api
+home: https://github.com/your-username/nestjs_kubernetes_do
+sources:
+  - https://github.com/your-username/nestjs_kubernetes_do
+maintainers:
+  - name: Your Name
+    email: your-email@example.com
