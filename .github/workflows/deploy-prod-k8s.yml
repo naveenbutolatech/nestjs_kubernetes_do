@@ -63,10 +63,10 @@ jobs:
         DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DO_REGISTRY_TOKEN }}
       run: |
         # Download kubeconfig from DigitalOcean
-        doctl kubernetes cluster kubeconfig save ${{ secrets.K8S_CLUSTER_NAME }} --kubeconfig kubeconfig.yml
+        doctl kubernetes cluster kubeconfig save ${{ secrets.K8S_CLUSTER_NAME }} --set-current-context
         
-        # Set KUBECONFIG environment variable
-        echo "KUBECONFIG=$PWD/kubeconfig.yml" >> $GITHUB_ENV
+        # Verify connection
+        kubectl get nodes
         
     - name: Create namespace
       run: |
