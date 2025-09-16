@@ -50,6 +50,19 @@ jobs:
       with:
         version: 'v3.12.0'
         
+    - name: Install doctl
+      run: |
+        # Install doctl CLI
+        wget https://github.com/digitalocean/doctl/releases/download/v1.94.0/doctl-1.94.0-linux-amd64.tar.gz
+        tar xf doctl-1.94.0-linux-amd64.tar.gz
+        sudo mv doctl /usr/local/bin
+        doctl version
+        
+    - name: Authenticate with DigitalOcean
+      run: |
+        # Authenticate doctl with DigitalOcean
+        echo "${{ secrets.DO_REGISTRY_TOKEN }}" | doctl auth init --context default
+        
     - name: Configure kubectl for DigitalOcean Kubernetes
       run: |
         # Download kubeconfig from DigitalOcean
