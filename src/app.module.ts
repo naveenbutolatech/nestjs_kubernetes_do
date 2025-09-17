@@ -38,6 +38,7 @@ import { Product } from './entities/product.entity';
         // Retry connection configuration
         retryAttempts: 3,
         retryDelay: 3000,
+        // VPC database configuration
       }),
       inject: [ConfigService],
     }),
