@@ -30,6 +30,11 @@ import { Product } from './entities/product.entity';
         ssl: {
           rejectUnauthorized: false, // Required for DigitalOcean PostgreSQL
         },
+        extra: {
+          ssl: {
+            sslmode: 'require', // Match DigitalOcean requirement
+          },
+        },
       }),
       inject: [ConfigService],
     }),
