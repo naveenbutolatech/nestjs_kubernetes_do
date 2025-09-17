@@ -102,14 +102,7 @@ jobs:
         sed -i "s|REGISTRY_IMAGE|${{ env.DO_REGISTRY }}/${{ env.DO_REGISTRY_NAME }}/${{ env.DO_APP_NAME }}|g" k8s/deployment.yaml
         
         # Create postgres secret with external database
-        kubectl create secret generic postgres-secret \
-          --from-literal=host=${{ secrets.POSTGRES_HOST }} \
-          --from-literal=port=${{ secrets.POSTGRES_PORT }} \
-          --from-literal=username=${{ secrets.POSTGRES_USER }} \
-          --from-literal=password=${{ secrets.POSTGRES_PASSWORD }} \
-          --from-literal=database=${{ secrets.POSTGRES_DATABASE }} \
-          --namespace=${{ env.K8S_NAMESPACE }} \
-          --dry-run=client -o yaml | kubectl apply -f -
+        kubectl create secret generic postgres-secret --from-literal=host=${{ secrets.POSTGRES_HOST }} --from-literal=port=${{ secrets.POSTGRES_PORT }} --from-literal=username=${{ secrets.POSTGRES_USER }} --from-literal=password=${{ secrets.POSTGRES_PASSWORD }} --from-literal=database=${{ secrets.POSTGRES_DATABASE }} --namespace=${{ env.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
         
         # Apply Kubernetes manifests
         kubectl apply -f k8s/deployment.yaml -n ${{ env.K8S_NAMESPACE }}
