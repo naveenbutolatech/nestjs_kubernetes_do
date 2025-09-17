@@ -27,6 +27,9 @@ import { Product } from './entities/product.entity';
         synchronize: true, // Enable for Docker container testing
         logging: true, // Enable logging to see what's happening
         autoLoadEntities: true, // Automatically load entities
+        ssl: {
+          rejectUnauthorized: false, // Required for DigitalOcean PostgreSQL
+        },
       }),
       inject: [ConfigService],
     }),
