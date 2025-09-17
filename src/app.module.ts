@@ -35,6 +35,9 @@ import { Product } from './entities/product.entity';
             sslmode: 'require', // Match DigitalOcean requirement
           },
         },
+        // Retry connection configuration
+        retryAttempts: 3,
+        retryDelay: 3000,
       }),
       inject: [ConfigService],
     }),
