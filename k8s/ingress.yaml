@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nestjs-app-ingress
+  namespace: nestjs-prod
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -10,10 +11,21 @@ metadata:
 spec:
   tls:
   - hosts:
-    - your-domain.com
-    secretName: nestjs-app-tls
+    - bheji.com
+    - www.bheji.com
+    secretName: bheji-tls
   rules:
-  - host: your-domain.com  # Replace with your actual domain or use LoadBalancer IP
+  - host: bheji.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nestjs-app-service
+            port:
+              number: 80
+  - host: www.bheji.com
     http:
       paths:
       - path: /

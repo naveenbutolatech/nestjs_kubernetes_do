@@ -82,13 +82,18 @@ jobs:
         
     - name: Create registry secret
       run: |
+        # Delete existing secret if it exists
+        kubectl delete secret registry-secret -n ${{ env.K8S_NAMESPACE }} --ignore-not-found=true
+        
         # Create Docker registry secret for pulling images
         kubectl create secret docker-registry registry-secret \
           --docker-server=${{ env.DO_REGISTRY }} \
           --docker-username=${{ secrets.DO_REGISTRY_USERNAME }} \
           --docker-password=${{ secrets.DO_REGISTRY_TOKEN }} \
-          --namespace=${{ env.K8S_NAMESPACE }} \
-          --dry-run=client -o yaml | kubectl apply -f -
+          --namespace=${{ env.K8S_NAMESPACE }}
+        
+        # Verify the secret was created
+        kubectl get secret registry-secret -n ${{ env.K8S_NAMESPACE }}
         
     - name: Deploy to Kubernetes
       run: |
@@ -96,15 +101,27 @@ jobs:
         sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
         sed -i "s|REGISTRY_IMAGE|${{ env.DO_REGISTRY }}/${{ env.DO_REGISTRY_NAME }}/${{ env.DO_APP_NAME }}|g" k8s/deployment.yaml
         
-        # Apply Kubernetes manifests (skip ingress for now)
-        kubectl apply -f k8s/deployment.yaml -n ${{ env.K8S_NAMESPACE }}
-        kubectl apply -f k8s/service.yaml -n ${{ env.K8S_NAMESPACE }}
-        kubectl apply -f k8s/postgres.yaml -n ${{ env.K8S_NAMESPACE }}
-        kubectl apply -f k8s/redis.yaml -n ${{ env.K8S_NAMESPACE }}
-        kubectl apply -f k8s/secrets.yaml -n ${{ env.K8S_NAMESPACE }}
+         # Create postgres secret with external database
+         kubectl create secret generic postgres-secret \
+           --from-literal=host=${{ secrets.POSTGRES_HOST }} \
+           --from-literal=port=${{ secrets.POSTGRES_PORT }} \
+           --from-literal=username=${{ secrets.POSTGRES_USER }} \
+           --from-literal=password=${{ secrets.POSTGRES_PASSWORD }} \
+           --from-literal=database=${{ secrets.POSTGRES_DATABASE }} \
+           --namespace=${{ env.K8S_NAMESPACE }} \
+           --dry-run=client -o yaml | kubectl apply -f -
+         
+         # Apply Kubernetes manifests
+         kubectl apply -f k8s/deployment.yaml -n ${{ env.K8S_NAMESPACE }}
+         kubectl apply -f k8s/service.yaml -n ${{ env.K8S_NAMESPACE }}
+         kubectl apply -f k8s/ingress.yaml -n ${{ env.K8S_NAMESPACE }}
         
         # Wait for deployment to be ready
-        kubectl rollout status deployment/nestjs-app -n ${{ env.K8S_NAMESPACE }} --timeout=300s
+        kubectl rollout status deployment/nestjs-app -n ${{ env.K8S_NAMESPACE }} --timeout=600s
+        
+        # Check pod status if rollout fails
+        kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+        kubectl describe pods -n ${{ env.K8S_NAMESPACE }}
         
     - name: Verify deployment
       run: |

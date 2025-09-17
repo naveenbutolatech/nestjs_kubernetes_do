@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nestjs-app-service
+  namespace: nestjs-prod
   labels:
     app: nestjs-app
 spec:
@@ -12,33 +13,3 @@ spec:
     port: 80
     targetPort: 3000
   type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-  labels:
-    app: postgres
-spec:
-  selector:
-    app: postgres
-  ports:
-  - protocol: TCP
-    port: 5432
-    targetPort: 5432
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-service
-  labels:
-    app: redis
-spec:
-  selector:
-    app: redis
-  ports:
-  - protocol: TCP
-    port: 6379
-    targetPort: 6379
-  type: ClusterIP
