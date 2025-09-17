@@ -116,6 +116,7 @@ jobs:
           --from-literal=username="${{ secrets.POSTGRES_USER }}" \
           --from-literal=password="${{ secrets.POSTGRES_PASSWORD }}" \
           --from-literal=database="${{ secrets.POSTGRES_DATABASE }}" \
+          --from-literal=ca-cert="${{ secrets.POSTGRES_CA_CERT }}" \
           --namespace="${{ env.K8S_NAMESPACE }}" \
           --dry-run=client -o yaml | kubectl apply -f -
         

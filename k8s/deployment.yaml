@@ -54,6 +54,11 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: database
+        - name: DATABASE_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: ca-cert
         resources:
           requests:
             memory: "256Mi"
