@@ -28,7 +28,7 @@ import { Product } from './entities/product.entity';
         logging: true, // Enable logging to see what's happening
         autoLoadEntities: true, // Automatically load entities
         ssl: {
-          rejectUnauthorized: false, // Required for DigitalOcean PostgreSQL
+          rejectUnauthorized: false, // Required  for DigitalOcean PostgreSQL
         },
         extra: {
           ssl: {
